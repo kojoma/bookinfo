@@ -4,7 +4,7 @@ class BooksController < ApplicationController
   # GET /books
   # GET /books.json
   def index
-    @books = Book.all
+    @books = Book.all.order(id: :desc)
   end
 
   # GET /books/1
@@ -25,28 +25,38 @@ class BooksController < ApplicationController
   # POST /books.json
   def create
     @book = Book.new(book_params)
-    get_info
 
-    if @res.present? && !@res.has_error? && @res.total_results != 0
-      @book.isbn            = @res.first_item.get('ItemAttributes/ISBN')
-      @book.asin            = @res.first_item.get('ASIN')
-      @book.title           = @res.first_item.get('ItemAttributes/Title')
-      @book.publisher       = @res.first_item.get('ItemAttributes/Manufacturer')
-      @book.author          = @res.first_item.get('ItemAttributes/Author')
-      @book.description     = @res.first_item.get('EditorialReviews/EditorialReview/Content')
-      @book.image           = @res.first_item.get('MediumImage/URL')
-      @book.publish_date    = @res.first_item.get('ItemAttributes/PublicationDate')
-      @book.number_of_pages = @res.first_item.get('ItemAttributes/NumberOfPages')
-      @book.price           = @res.first_item.get('ItemAttributes/ListPrice/Amount')
-    end
+    # 入力されたISBNが登録されてない場合のみ、書籍情報を取得して登録
+    @find_book = Book.find_by(isbn: @book.isbn)
+    if @find_book.nil?
+      get_info
 
-    respond_to do |format|
-      if @book.save
-        format.html { redirect_to @book, notice: 'Book was successfully created.' }
-        format.json { render :show, status: :created, location: @book }
-      else
-        format.html { render :new }
-        format.json { render json: @book.errors, status: :unprocessable_entity }
+      if @res.present? && !@res.has_error? && @res.total_results != 0
+        @book.isbn            = @res.first_item.get('ItemAttributes/ISBN')
+        @book.asin            = @res.first_item.get('ASIN')
+        @book.title           = @res.first_item.get('ItemAttributes/Title')
+        @book.publisher       = @res.first_item.get('ItemAttributes/Manufacturer')
+        @book.author          = @res.first_item.get('ItemAttributes/Author')
+        @book.description     = @res.first_item.get('EditorialReviews/EditorialReview/Content')
+        @book.image           = @res.first_item.get('MediumImage/URL')
+        @book.publish_date    = @res.first_item.get('ItemAttributes/PublicationDate')
+        @book.number_of_pages = @res.first_item.get('ItemAttributes/NumberOfPages')
+        @book.price           = @res.first_item.get('ItemAttributes/ListPrice/Amount')
+      end
+
+      respond_to do |format|
+        if @book.save
+          format.html { redirect_to @book, notice: '本の新規登録に成功しました。' }
+          format.json { render :show, status: :created, location: @book }
+        else
+          format.html { render :new }
+          format.json { render json: @book.errors, status: :unprocessable_entity }
+        end
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to @find_book, notice: 'この本は既に登録されています。' }
+        format.json { render :show, status: :created, location: @find_book }
       end
     end
   end
@@ -56,7 +66,7 @@ class BooksController < ApplicationController
   def update
     respond_to do |format|
       if @book.update(book_params)
-        format.html { redirect_to @book, notice: 'Book was successfully updated.' }
+        format.html { redirect_to @book, notice: '本の更新に成功しました。' }
         format.json { render :show, status: :ok, location: @book }
       else
         format.html { render :edit }
@@ -70,7 +80,7 @@ class BooksController < ApplicationController
   def destroy
     @book.destroy
     respond_to do |format|
-      format.html { redirect_to books_url, notice: 'Book was successfully destroyed.' }
+      format.html { redirect_to books_url, notice: '本の削除に成功しました。' }
       format.json { head :no_content }
     end
   end

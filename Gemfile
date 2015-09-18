@@ -46,3 +46,4 @@ group :development do
 end
 
 gem 'amazon-ecs'
+gem 'evernote_oauth'

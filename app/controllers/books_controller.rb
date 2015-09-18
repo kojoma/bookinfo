@@ -1,5 +1,5 @@
 class BooksController < ApplicationController
-  before_action :set_book, only: [:show, :edit, :update, :destroy]
+  before_action :set_book, only: [:show, :edit, :update, :destroy, :evernote_post]
 
   # GET /books
   # GET /books.json
@@ -42,6 +42,11 @@ class BooksController < ApplicationController
         @book.publish_date    = @res.first_item.get('ItemAttributes/PublicationDate')
         @book.number_of_pages = @res.first_item.get('ItemAttributes/NumberOfPages')
         @book.price           = @res.first_item.get('ItemAttributes/ListPrice/Amount')
+      else
+        respond_to do |format|
+          format.html { redirect_to books_url, notice: '本が見つかりませんでした。' }
+          format.json { head :no_content }
+        end
       end
 
       respond_to do |format|
@@ -85,10 +90,53 @@ class BooksController < ApplicationController
     end
   end
 
+  # post to evernote
+  def evernote_post
+    developer_token = Rails.application.secrets.evernote_developer_token_sandbox
+
+    # Set up the NoteStore client
+    client = EvernoteOAuth::Client.new(
+      token: developer_token,
+      sandbox: true
+    )
+    note_store = client.note_store
+
+    # Make API calls
+    notebooks = note_store.listNotebooks
+
+    # Make note
+    notebooks.each do |notebook|
+      if notebook.guid == Rails.application.secrets.evernote_notebook_guid
+        @parent_notebook = notebook
+      end
+    end
+    note_title = @book.title
+    note_text  = 'タイトル: '       + @book.title
+    note_text += '<br/>出版社: '    + @book.publisher
+    note_text += '<br/>著者: '      + @book.author
+    note_text += '<br/>ISBN: '      + @book.isbn
+    if @book.description.present?
+      note_text += '<br/>内容: '      + @book.description
+    end
+    note_text += '<br/>発売日: '    + @book.publish_date.to_s
+    note_text += '<br/>ページ数: '  + @book.number_of_pages.to_s
+    note_text += '<br/>価格: &yen;' + @book.price.to_s
+    note = make_note(note_store, @book.title, note_text, @parent_notebook)
+
+    respond_to do |format|
+      format.html { redirect_to books_url, notice: @book.title + ' をEvernoteに投稿しました。' }
+      format.json { render :show, status: :created, location: @book }
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_book
-      @book = Book.find(params[:id])
+      if params[:id].present?
+        @book = Book.find(params[:id])
+      else
+        @book = Book.find(params[:book_id])
+      end
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.
@@ -100,5 +148,38 @@ class BooksController < ApplicationController
     def get_info
       Amazon::Ecs.debug = true
       @res = Amazon::Ecs.item_search(@book.isbn, {:search_index => 'Books', :response_group => 'Medium', :country => 'jp'})
+    end
+
+    # make note to evernote
+    def make_note(note_store, note_title, note_body, parent_notebook=nil)
+      n_body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      n_body += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
+      n_body += "<en-note>#{note_body}</en-note>"
+
+      ## Create note object
+      our_note = Evernote::EDAM::Type::Note.new
+      our_note.title = note_title
+      our_note.content = n_body
+
+      ## parent_notebook is optional; if omitted, default notebook is used
+      if parent_notebook && parent_notebook.guid
+        our_note.notebookGuid = parent_notebook.guid
+      end
+
+      ## Attempt to create note in Evernote account
+      begin
+        note = note_store.createNote(our_note)
+      rescue Evernote::EDAM::Error::EDAMUserException => edue
+        ## Something was wrong with the note data
+        ## See EDAMErrorCode enumeration for error code explanation
+        ## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
+        puts "EDAMUserException: #{edue}"
+      rescue Evernote::EDAM::Error::EDAMNotFoundException => ednfe
+        ## Parent Notebook GUID doesn't correspond to an actual notebook
+        puts "EDAMNotFoundException: Invalid parent notebook GUID"
+      end
+
+      ## Return created note object
+      note
     end
 end

@@ -111,7 +111,7 @@ class BooksController < ApplicationController
       end
     end
     note_title = @book.title
-    note_text  = 'タイトル: '       + @book.title
+    note_text  = '<br/>タイトル: '  + @book.title
     note_text += '<br/>出版社: '    + @book.publisher
     note_text += '<br/>著者: '      + @book.author
     note_text += '<br/>ISBN: '      + @book.isbn
@@ -152,14 +152,37 @@ class BooksController < ApplicationController
 
     # make note to evernote
     def make_note(note_store, note_title, note_body, parent_notebook=nil)
+      # read the image, to make hash key in MD5
+      file_path = save_image(@book.image)
+      file_url  = @book.image
+      mime_type = MIME::Types.type_for(file_path).to_s
+      image     = File.open(file_path, "rb") { |io| io.read }
+      hashFunc  = Digest::MD5.new
+      hashHex   = hashFunc.hexdigest(image)
+
+      # make mata data type to image
+      data          = Evernote::EDAM::Type::Data.new()
+      data.size     = image.size
+      data.bodyHash = hashHex
+      data.body     = image
+
+      # dataと併せて添付ファイル形式を作る
+      resource                     = Evernote::EDAM::Type::Resource.new()
+      resource.mime                = "image/jpeg"
+      resource.data                = data
+      resource.attributes          = Evernote::EDAM::Type::ResourceAttributes.new()
+      resource.attributes.fileName = file_url
+
       n_body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       n_body += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-      n_body += "<en-note>#{note_body}</en-note>"
+      n_body += "<en-note><en-media type=\"#{resource.mime}\" hash=\"#{hashHex}\"/>#{note_body}</en-note>"
+      #n_body += "<en-note>#{note_body}<en-media type=\"#{mime_type}\" hash=\"#{hashHex}\"/></en-note>"
 
       ## Create note object
-      our_note = Evernote::EDAM::Type::Note.new
-      our_note.title = note_title
-      our_note.content = n_body
+      our_note           = Evernote::EDAM::Type::Note.new
+      our_note.title     = note_title
+      our_note.content   = n_body
+      our_note.resources = [ resource ]
 
       ## parent_notebook is optional; if omitted, default notebook is used
       if parent_notebook && parent_notebook.guid
@@ -174,12 +197,40 @@ class BooksController < ApplicationController
         ## See EDAMErrorCode enumeration for error code explanation
         ## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
         puts "EDAMUserException: #{edue}"
+
+        # image file delete
+        File.unlink(file_path)
       rescue Evernote::EDAM::Error::EDAMNotFoundException => ednfe
         ## Parent Notebook GUID doesn't correspond to an actual notebook
         puts "EDAMNotFoundException: Invalid parent notebook GUID"
+
+        # image file delete
+        File.unlink(file_path)
       end
 
+      # image file delete
+      File.unlink(file_path)
+
       ## Return created note object
-      note
+      return note
+    end
+
+    # image file save to public directory
+    def save_image(url)
+      file_name = get_filename(url)
+      dir_name  = '/vagrant/bookinfo/public/'
+      file_path = dir_name + file_name
+
+      mechanize = Mechanize.new
+      page      = mechanize.get(url)
+      page.save_as(file_path)
+
+      return file_path
+    end
+
+    # parse file name from url
+    def get_filename(url)
+      url =~ /([^\/]+?)([\?#].*)?$/
+      $&
     end
 end

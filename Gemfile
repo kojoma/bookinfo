@@ -53,3 +53,6 @@ gem 'mechanize'
 gem 'therubyracer'
 gem 'less-rails'
 gem 'twitter-bootstrap-rails'
+
+# for pager
+gem 'kaminari'

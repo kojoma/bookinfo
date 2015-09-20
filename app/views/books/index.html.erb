@@ -10,9 +10,11 @@
   <h1>書籍一覧</h1>
 </div>
 
-<%= link_to '新規登録', new_book_path,
-            :class => 'btn btn-primary' %><table class="table table-striped">
+<div>
+  <%= link_to '新規登録', new_book_path, :class => 'btn btn-primary' %>
+</div>
 
+<table class="table table-striped">
   <thead>
     <tr>
       <th>ID</th>
@@ -43,5 +45,6 @@
         </td>
       </tr>
     <% end %>
+    <%= paginate @books %>
   </tbody>
 </table>

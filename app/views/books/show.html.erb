@@ -24,6 +24,8 @@
   <dd><%= @book.price %></dd>
   <dt><strong><%= model_class.human_attribute_name(:image) %>:</strong></dt>
   <dd><%= @book.image %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:evernote_post_at) %>:</strong></dt>
+  <dd><%= @book.evernote_post_at.to_s %></dd>
 </dl>
 
 <%= link_to t('.back', :default => t("helpers.links.back")),

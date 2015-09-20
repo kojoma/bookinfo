@@ -46,7 +46,7 @@ class BooksController < ApplicationController
       if @find_book.nil?
         respond_to do |format|
           if @book.save
-            format.html { redirect_to @book, notice: '本の新規登録に成功しました。' }
+            format.html { redirect_to @book, notice: @book.title + ' を新規登録しました。' }
             format.json { render :show, status: :created, location: @book }
           else
             format.html { render :new }
@@ -55,7 +55,7 @@ class BooksController < ApplicationController
         end
       else
         respond_to do |format|
-          format.html { redirect_to @find_book, notice: 'この本は既に登録されています。' }
+          format.html { redirect_to @find_book, notice: @book.title + ' は既に登録されています。' }
           format.json { render :show, status: :created, location: @find_book }
         end
       end
@@ -72,7 +72,7 @@ class BooksController < ApplicationController
   def update
     respond_to do |format|
       if @book.update(book_params)
-        format.html { redirect_to @book, notice: '本の更新に成功しました。' }
+        format.html { redirect_to @book, notice: @book.title + ' の更新に成功しました。' }
         format.json { render :show, status: :ok, location: @book }
       else
         format.html { render :edit }
@@ -86,7 +86,7 @@ class BooksController < ApplicationController
   def destroy
     @book.destroy
     respond_to do |format|
-      format.html { redirect_to books_url, notice: '本の削除に成功しました。' }
+      format.html { redirect_to books_url, notice: @book.title + ' の削除に成功しました。' }
       format.json { head :no_content }
     end
   end
@@ -143,7 +143,13 @@ class BooksController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def book_params
-      params.require(:book).permit(:isbn, :asin, :title, :publisher, :author, :image, :description, :publish_date, :number_of_pages, :price)
+      params.require(:book).permit(:isbn, :asin, :title, :publisher, :author, :image, :description, :publish_date, :number_of_pages, :price, :evernote_post_at)
+    end
+
+    # save evernote_post_at to book
+    def save_evernote_post_at
+      @book.evernote_post_at = Time.now.strftime("%Y-%m-%d %H:%M:%S")
+      @book.save
     end
 
     # get book infomation from amazon
@@ -212,6 +218,9 @@ class BooksController < ApplicationController
 
       # image file delete
       File.unlink(file_path)
+
+      # save post datetime
+      save_evernote_post_at
 
       ## Return created note object
       return note

@@ -85,6 +85,14 @@
     </div>
     <%= error_span(@book[:image]) %>
   </div>
+  <div class="control-group">
+    <%= f.label :evernote_post_at, :class => 'control-label' %>
+    <div class="controls">
+      <%= f.text_field :evernote_post_at, :class => 'form-control datetimepicker' %>
+      <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+    </div>
+    <%= error_span(@book[:evernote_post_at]) %>
+  </div>
 
 
   <%= f.submit nil, :class => 'btn btn-primary' %>

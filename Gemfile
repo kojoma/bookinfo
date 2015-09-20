@@ -48,3 +48,8 @@ end
 gem 'amazon-ecs'
 gem 'evernote_oauth'
 gem 'mechanize'
+
+# for bootstrap
+gem 'therubyracer'
+gem 'less-rails'
+gem 'twitter-bootstrap-rails'

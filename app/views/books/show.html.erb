@@ -1,54 +1,37 @@
-<p id="notice"><%= notice %></p>
+<%- model_class = Book -%>
+<div class="page-header">
+  <h1><%=t '.title', :default => model_class.model_name.human.titleize %></h1>
+</div>
 
-<p>
-  <strong>Isbn:</strong>
-  <%= @book.isbn %>
-</p>
+<dl class="dl-horizontal">
+  <dt><strong><%= model_class.human_attribute_name(:isbn) %>:</strong></dt>
+  <dd><%= @book.isbn %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:asin) %>:</strong></dt>
+  <dd><%= @book.asin %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:title) %>:</strong></dt>
+  <dd><%= @book.title %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:publisher) %>:</strong></dt>
+  <dd><%= @book.publisher %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:author) %>:</strong></dt>
+  <dd><%= @book.author %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:description) %>:</strong></dt>
+  <dd><%= @book.description %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:publish_date) %>:</strong></dt>
+  <dd><%= @book.publish_date %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:number_of_pages) %>:</strong></dt>
+  <dd><%= @book.number_of_pages %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:price) %>:</strong></dt>
+  <dd><%= @book.price %></dd>
+  <dt><strong><%= model_class.human_attribute_name(:image) %>:</strong></dt>
+  <dd><%= @book.image %></dd>
+</dl>
 
-<p>
-  <strong>Asin:</strong>
-  <%= @book.asin %>
-</p>
-
-<p>
-  <strong>Title:</strong>
-  <%= @book.title %>
-</p>
-
-<p>
-  <strong>Publisher:</strong>
-  <%= @book.publisher %>
-</p>
-
-<p>
-  <strong>Author:</strong>
-  <%= @book.author %>
-</p>
-
-<p>
-  <strong>Description:</strong>
-  <%= @book.description %>
-</p>
-
-<p>
-  <strong>Image:</strong>
-  <%= @book.image %>
-</p>
-
-<p>
-  <strong>Publish date:</strong>
-  <%= @book.publish_date %>
-</p>
-
-<p>
-  <strong>Number of pages:</strong>
-  <%= @book.number_of_pages %>
-</p>
-
-<p>
-  <strong>Price:</strong>
-  <%= @book.price %>
-</p>
-
-<%= link_to 'Edit', edit_book_path(@book) %> |
-<%= link_to 'Back', books_path %>
+<%= link_to t('.back', :default => t("helpers.links.back")),
+              books_path, :class => 'btn btn-default'  %>
+<%= link_to t('.edit', :default => t("helpers.links.edit")),
+              edit_book_path(@book), :class => 'btn btn-default' %>
+<%= link_to t('.destroy', :default => t("helpers.links.destroy")),
+              book_path(@book),
+              :method => 'delete',
+              :data => { :confirm => t('.confirm', :default => t("helpers.links.confirm", :default => 'Are you sure?')) },
+              :class => 'btn btn-danger' %>

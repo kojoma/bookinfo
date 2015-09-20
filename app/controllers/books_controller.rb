@@ -26,42 +26,43 @@ class BooksController < ApplicationController
   def create
     @book = Book.new(book_params)
 
-    # 入力されたISBNが登録されてない場合のみ、書籍情報を取得して登録
-    @find_book = Book.find_by(isbn: @book.isbn)
-    if @find_book.nil?
-      get_info
+    # 書籍情報を取得
+    get_info
 
-      if @res.present? && !@res.has_error? && @res.total_results != 0
-        @book.isbn            = @res.first_item.get('ItemAttributes/ISBN')
-        @book.asin            = @res.first_item.get('ASIN')
-        @book.title           = @res.first_item.get('ItemAttributes/Title')
-        @book.publisher       = @res.first_item.get('ItemAttributes/Manufacturer')
-        @book.author          = @res.first_item.get('ItemAttributes/Author')
-        @book.description     = @res.first_item.get('EditorialReviews/EditorialReview/Content')
-        @book.image           = @res.first_item.get('MediumImage/URL')
-        @book.publish_date    = @res.first_item.get('ItemAttributes/PublicationDate')
-        @book.number_of_pages = @res.first_item.get('ItemAttributes/NumberOfPages')
-        @book.price           = @res.first_item.get('ItemAttributes/ListPrice/Amount')
+    if @res.present? && !@res.has_error? && @res.total_results != 0
+      @book.isbn            = @res.first_item.get('ItemAttributes/ISBN')
+      @book.asin            = @res.first_item.get('ASIN')
+      @book.title           = @res.first_item.get('ItemAttributes/Title')
+      @book.publisher       = @res.first_item.get('ItemAttributes/Manufacturer')
+      @book.author          = @res.first_item.get('ItemAttributes/Author')
+      @book.description     = @res.first_item.get('EditorialReviews/EditorialReview/Content')
+      @book.image           = @res.first_item.get('MediumImage/URL')
+      @book.publish_date    = @res.first_item.get('ItemAttributes/PublicationDate')
+      @book.number_of_pages = @res.first_item.get('ItemAttributes/NumberOfPages')
+      @book.price           = @res.first_item.get('ItemAttributes/ListPrice/Amount')
+
+      # 取得したISBNが登録されてない場合のみ、取得した書籍を登録する
+      @find_book = Book.find_by(isbn: @book.isbn)
+      if @find_book.nil?
+        respond_to do |format|
+          if @book.save
+            format.html { redirect_to @book, notice: '本の新規登録に成功しました。' }
+            format.json { render :show, status: :created, location: @book }
+          else
+            format.html { render :new }
+            format.json { render json: @book.errors, status: :unprocessable_entity }
+          end
+        end
       else
         respond_to do |format|
-          format.html { redirect_to books_url, notice: '本が見つかりませんでした。' }
-          format.json { head :no_content }
-        end
-      end
-
-      respond_to do |format|
-        if @book.save
-          format.html { redirect_to @book, notice: '本の新規登録に成功しました。' }
-          format.json { render :show, status: :created, location: @book }
-        else
-          format.html { render :new }
-          format.json { render json: @book.errors, status: :unprocessable_entity }
+          format.html { redirect_to @find_book, notice: 'この本は既に登録されています。' }
+          format.json { render :show, status: :created, location: @find_book }
         end
       end
     else
       respond_to do |format|
-        format.html { redirect_to @find_book, notice: 'この本は既に登録されています。' }
-        format.json { render :show, status: :created, location: @find_book }
+        format.html { redirect_to books_url, notice: '本が見つかりませんでした。' }
+        format.json { head :no_content }
       end
     end
   end
@@ -111,16 +112,17 @@ class BooksController < ApplicationController
       end
     end
     note_title = @book.title
-    note_text  = '<br/>タイトル: '  + @book.title
+    note_text  = '<br/>タイトル: '  + '<a href="http://www.amazon.co.jp/dp/' + @book.asin + '">' + @book.title + '</a>'
     note_text += '<br/>出版社: '    + @book.publisher
     note_text += '<br/>著者: '      + @book.author
     note_text += '<br/>ISBN: '      + @book.isbn
     if @book.description.present?
-      note_text += '<br/>内容: '      + @book.description
+      note_text += '<br/>内容: '    + @book.description
     end
     note_text += '<br/>発売日: '    + @book.publish_date.to_s
     note_text += '<br/>ページ数: '  + @book.number_of_pages.to_s
     note_text += '<br/>価格: &yen;' + @book.price.to_s
+    note_text += '<br/><hr/><br/>'
     note = make_note(note_store, @book.title, note_text, @parent_notebook)
 
     respond_to do |format|

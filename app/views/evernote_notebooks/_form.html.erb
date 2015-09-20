@@ -1,0 +1,29 @@
+<%= form_for @evernote_notebook, :html => { :class => "form-horizontal evernote_notebook" } do |f| %>
+
+    <% if @evernote_notebook.errors.any? %>
+    <div id="error_expl" class="panel panel-danger">
+      <div class="panel-heading">
+        <h3 class="panel-title"><%= pluralize(@evernote_notebook.errors.count, "error") %> prohibited this evernote_notebook from being saved:</h3>
+      </div>
+      <div class="panel-body">
+        <ul>
+        <% @evernote_notebook.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="control-group">
+    送信先のノートブック
+    <div class="controls">
+      <%= select_tag 'evernote_notebook[guid]', options_from_collection_for_select(@notebooks, :first, :last, @evernote_notebook.guid), :class => 'form-control' %>
+    </div>
+    <%= error_span(@evernote_notebook[:guid]) %>
+  </div>
+
+
+  <%= f.submit '登録', :class => 'btn btn-primary' %>
+
+<% end %>

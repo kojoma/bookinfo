@@ -93,21 +93,16 @@ class BooksController < ApplicationController
 
   # post to evernote
   def evernote_post
-    developer_token = Rails.application.secrets.evernote_developer_token_sandbox
-
     # Set up the NoteStore client
-    client = EvernoteOAuth::Client.new(
-      token: developer_token,
-      sandbox: true
-    )
-    note_store = client.note_store
+    note_store = get_evernote_notestore
 
-    # Make API calls
+    # get notebook list
     notebooks = note_store.listNotebooks
 
-    # Make note
+    # setting to post of notebook
+    evernote_notebook = EvernoteNotebook.find(1)
     notebooks.each do |notebook|
-      if notebook.guid == Rails.application.secrets.evernote_notebook_guid
+      if notebook.guid == evernote_notebook.guid
         @parent_notebook = notebook
       end
     end

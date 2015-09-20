@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150920042827) do
+ActiveRecord::Schema.define(version: 20150920162002) do
 
   create_table "books", force: :cascade do |t|
     t.string   "isbn"
@@ -27,6 +27,13 @@ ActiveRecord::Schema.define(version: 20150920042827) do
     t.datetime "updated_at",       null: false
     t.string   "image"
     t.datetime "evernote_post_at"
+  end
+
+  create_table "evernote_notebooks", force: :cascade do |t|
+    t.string   "guid"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string   "name"
   end
 
 end

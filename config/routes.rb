@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :evernote_notebooks
   resources :books
   resources :books do
     get 'evernote_post'

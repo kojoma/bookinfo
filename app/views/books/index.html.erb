@@ -37,7 +37,9 @@
         <td><%= image_tag book.image %></td>
         <td>
           <%= link_to '編集', edit_book_path(book), :class => 'btn btn-default btn-xs' %>
-          <%= link_to '送信', book_evernote_post_path(book), :class => 'btn btn-default btn-xs' %>
+          <% if book.evernote_post_at.blank? %>
+            <%= link_to '送信', book_evernote_post_path(book), :class => 'btn btn-default btn-xs' %>
+          <% end %>
           <%= link_to '削除', book_path(book),
                       :method => :delete,
                       :data => { :confirm => '本当に削除しますか？' },

@@ -16,16 +16,14 @@
   <% end %>
 
   <div class="control-group">
-    <%= f.label :isbn, :class => 'control-label' %>
+    ISBN
     <div class="controls">
       <%= f.text_field :isbn, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:isbn]) %>
   </div>
 
-
-  <%= f.submit nil, :class => 'btn btn-primary' %>
-  <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
-            books_path, :class => 'btn btn-default' %>
+  <%= f.submit '登録', :class => 'btn btn-primary' %>
+  <%= link_to 'キャンセル', books_path, :class => 'btn btn-default' %>
 
 <% end %>

@@ -16,77 +16,77 @@
   <% end %>
 
   <div class="control-group">
-    <%= f.label :isbn, :class => 'control-label' %>
+    ISBN
     <div class="controls">
       <%= f.text_field :isbn, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:isbn]) %>
   </div>
   <div class="control-group">
-    <%= f.label :asin, :class => 'control-label' %>
+    ASIN
     <div class="controls">
       <%= f.text_field :asin, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:asin]) %>
   </div>
   <div class="control-group">
-    <%= f.label :title, :class => 'control-label' %>
+    タイトル
     <div class="controls">
       <%= f.text_field :title, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:title]) %>
   </div>
   <div class="control-group">
-    <%= f.label :publisher, :class => 'control-label' %>
+    出版社
     <div class="controls">
       <%= f.text_field :publisher, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:publisher]) %>
   </div>
   <div class="control-group">
-    <%= f.label :author, :class => 'control-label' %>
+    著者
     <div class="controls">
       <%= f.text_field :author, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:author]) %>
   </div>
   <div class="control-group">
-    <%= f.label :description, :class => 'control-label' %>
+    内容
     <div class="controls">
       <%= f.text_field :description, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:description]) %>
   </div>
   <div class="control-group">
-    <%= f.label :publish_date, :class => 'control-label' %>
+    発売日
     <div class="controls">
       <%= f.text_field :publish_date, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:publish_date]) %>
   </div>
   <div class="control-group">
-    <%= f.label :number_of_pages, :class => 'control-label' %>
+    ページ数
     <div class="controls">
       <%= f.text_field :number_of_pages, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:number_of_pages]) %>
   </div>
   <div class="control-group">
-    <%= f.label :price, :class => 'control-label' %>
+    価格
     <div class="controls">
       <%= f.text_field :price, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:price]) %>
   </div>
   <div class="control-group">
-    <%= f.label :image, :class => 'control-label' %>
+    画像
     <div class="controls">
       <%= f.text_field :image, :class => 'form-control' %>
     </div>
     <%= error_span(@book[:image]) %>
   </div>
   <div class="control-group">
-    <%= f.label :evernote_post_at, :class => 'control-label' %>
+    Evernoteに送信した日時
     <div class="controls">
       <%= f.text_field :evernote_post_at, :class => 'form-control datetimepicker' %>
       <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
@@ -95,8 +95,7 @@
   </div>
 
 
-  <%= f.submit nil, :class => 'btn btn-primary' %>
-  <%= link_to t('.cancel', :default => t("helpers.links.cancel")),
-            books_path, :class => 'btn btn-default' %>
+  <%= f.submit '更新', :class => 'btn btn-primary' %>
+  <%= link_to 'キャンセル', books_path, :class => 'btn btn-default' %>
 
 <% end %>

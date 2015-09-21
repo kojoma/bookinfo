@@ -179,11 +179,11 @@ class BooksController < ApplicationController
       n_body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       n_body += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
       n_body += "<en-note><en-media type=\"#{resource.mime}\" hash=\"#{hashHex}\"/>#{note_body}</en-note>"
-      #n_body += "<en-note>#{note_body}<en-media type=\"#{mime_type}\" hash=\"#{hashHex}\"/></en-note>"
 
       ## Create note object
       our_note           = Evernote::EDAM::Type::Note.new
       our_note.title     = note_title
+      our_note.tagNames  = [ @book.author ]
       our_note.content   = n_body
       our_note.resources = [ resource ]
 

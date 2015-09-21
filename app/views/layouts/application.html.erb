@@ -21,9 +21,16 @@
       format : 'YYYY-MM-DD HH:mm'
     });
   });
+
+  // add class "active" for navbar
+  $(".nav a").on("click", function(){
+    $(".nav").find(".active").removeClass("active");
+    $(this).parent().addClass("active");
+  });
   </script>
 </head>
 <body>
+<%= render 'layouts/header' %>
 
 <%= yield %>
 

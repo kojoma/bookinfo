@@ -5,12 +5,12 @@ class ApplicationController < ActionController::Base
 
   # get evernote client
   def get_evernote_notestore
-    developer_token = Rails.application.secrets.evernote_developer_token_sandbox
+    developer_token = Rails.application.secrets.evernote_developer_token_production
 
     # Set up the NoteStore client
     client = EvernoteOAuth::Client.new(
       token: developer_token,
-      sandbox: true
+      sandbox: false
     )
 
     return client.note_store

@@ -183,7 +183,7 @@ class BooksController < ApplicationController
       ## Create note object
       our_note           = Evernote::EDAM::Type::Note.new
       our_note.title     = note_title
-      our_note.tagNames  = [ @book.author ]
+      our_note.tagNames  = [ @book.author.gsub(' ', '') ]
       our_note.content   = n_body
       our_note.resources = [ resource ]
 

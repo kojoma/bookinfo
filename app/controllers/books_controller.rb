@@ -150,7 +150,19 @@ class BooksController < ApplicationController
     # get book infomation from amazon
     def get_info
       Amazon::Ecs.debug = true
-      @res = Amazon::Ecs.item_search(@book.isbn, {:search_index => 'Books', :response_group => 'Medium', :country => 'jp'})
+      retry_count = 0
+      # 503が返ってくることがあるため5回までリトライする
+      begin
+        @res = Amazon::Ecs.item_search(@book.isbn, {:search_index => 'Books', :response_group => 'Medium', :country => 'jp'})
+      rescue
+        retry_count += 1
+        if retry_count < 5
+          sleep(5)
+          retry
+        else
+          return false
+        end
+      end
     end
 
     # make note to evernote

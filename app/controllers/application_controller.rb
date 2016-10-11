@@ -5,7 +5,8 @@ class ApplicationController < ActionController::Base
 
   # get evernote client
   def get_evernote_notestore
-    developer_token = Rails.application.secrets.evernote_developer_token_production
+    sandbox_state = false
+    developer_token = get_evernote_developer_token(sandbox_state)
 
     # Set up the NoteStore client
     client = EvernoteOAuth::Client.new(
@@ -14,6 +15,14 @@ class ApplicationController < ActionController::Base
     )
 
     return client.note_store
+  end
+
+  def get_evernote_developer_token(sandbox_state)
+    if sandbox_state
+      return Rails.application.secrets.evernote_developer_token_sandbox
+    else
+      return Rails.application.secrets.evernote_developer_token_production
+    end
   end
 
   # get evernote notebook name
